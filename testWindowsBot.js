@@ -2,44 +2,54 @@ const WindowsBot = require('WindowsBot');//引用WindowsBot模块
 
 //注册主函数
 WindowsBot.registerMain(windowsMain, "127.0.0.1", 26678);
-
-
-let jiangtaigongNpc= [442, 575]
-let jiangtaigongNpcClose= [933, 247]
-let zhuangtai1= [359, 577]
-let zhuangtai2= [359, 598]
-let fishTong= [768, 517]
-let useFishTong= [797, 600]
-let quitToRole= [617, 453]
-let xuandan= [1564, 813]
-let daoju= [ 85, 170]
-let cangku= [ 99, 284]
-let xiaohaoTab = [114, 85]
-let firstBag = [64, 123]
-let lingyaoBag = [60, 172]
-let lingyaoTu = "./lingyao.png";
-let lingyaoOptions = {region:[44, 116, 166, 152], sim:0.5};  //范围是任务栏的前三个框
-let bagTabStep = 70
+//全局常量
 let gwindowsBot
 let hwnd
+
+
+let jiangtaigongNpc
+let jiangtaigongNpcClose
+let zhuangtai1
+let zhuangtai2
+let fishTong
+let useFishTong
+let quitToRole
+let xuandan
+let daoju
+let cangku
+let xiaohaoTab
+let firstBag
+let lingyaoBag
+
+let lingyaoOptions
+let bagTabStep
+
+
+// let kongColorOptions = {subColors:[[5, 0, "#fdfcf7"], [18, 1, "#fbf9f0"], [18, 10, "#fbf9f0"], [10, 6, "#fbf9f0"]],sim:0.6};
+
+let getFishBagStart
+let getFishBagEnd
+
+let bagStart
+let bagEnd
+let bagStep
+let bagGapStep
+
+let firstRole
+let roleStep
+
+let fishbagStep
+
+let roleArr=[[0,1,1,1,1,1],
+            [0,1,1,1,0,0]]
+let startRoleIndex = [1,6] //第一排第二个角色
 let kongColor="#ffffff"
 let lingyaoColor="#641AFD"
-// let kongColorOptions = {subColors:[[5, 0, "#fdfcf7"], [18, 1, "#fbf9f0"], [18, 10, "#fbf9f0"], [10, 6, "#fbf9f0"]],sim:0.6};
-let kongColorOptions = {sim:0.9};
-let getFishBagStart = [670, 290]
-let getFishBagEnd = [926, 327]
-let fishbagStep = (getFishBagEnd[0]-getFishBagStart[0])/7
-let bagStart = [126, 313] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
-let bagEnd = [583, 325]
-let bagStep = 40
-let bagGapStep = 12
+let lingyaoTu = "./lingyao.png";
+let kongColorOptions = {sim:0.95};
 
-let firstRole=[291, 354]
-let roleStep=[200, 250]
-let roleArr=[[0,1,0,1,1,1],
-            [0,1,1,1,0,0]]
-let startRoleIndex = [1,1] //第一排第二个角色
 
+let resolution = "2560_1440"
 let time
 /**用作代码提示，windowsMain函数会被多次调用，注意使用全局变量
 * @param {WindowsBot} windowsBot
@@ -55,6 +65,7 @@ async function windowsMain(windowsBot){
     // console.log("bagIndex:  "+bagIsEmpty)
     //一个角色一分钟
     let count = 0
+    resolutionHandle(resolution)
     while (true) {
         count = ++count
         console.log("开始第 "+ count +" 波收鱼计划---"+Date.now())
@@ -72,38 +83,38 @@ async function windowsMain(windowsBot){
 }
 
 async function choiceRoleAndExcute(...funcs){
-    // for (let index = 0; index < funcs.length; index++) {
-    //     await funcs[index]();
-    // }
-    let count = 0
-    for(roleIndex1=startRoleIndex[0]-1;roleIndex1<roleArr[0].length-1;roleIndex1++){
-        for(roleIndex2=startRoleIndex[1]-1;roleIndex2<roleArr[1].length-1;roleIndex2++){
-            if(roleArr[roleIndex1][roleIndex2]==1){
-                count = ++count
-                console.log("第"+count+"个角色")
-                await gwindowsBot.clickMouse(hwnd,firstRole[0]+roleStep[0]*roleIndex2, firstRole[1]+roleStep[1]*roleIndex1, 1 ,{mode:true});
-                await gwindowsBot.sleep(800);
-                await gwindowsBot.clickMouse(hwnd,firstRole[0]+roleStep[0]*roleIndex2, firstRole[1]+roleStep[1]*roleIndex1, 1 ,{mode:true});
-                await gwindowsBot.sleep(10000);
-
-                for (let index = 0; index < funcs.length; index++) {
-                    await funcs[index]();
-                }
-            } 
-        }
-        startRoleIndex[1]=1
+    for (let index = 0; index < funcs.length; index++) {
+        await funcs[index]();
     }
-    startRoleIndex[0]=1
+    // let count = 0
+    // for(roleIndex1=startRoleIndex[0]-1;roleIndex1<roleArr[0].length-1;roleIndex1++){
+    //     for(roleIndex2=startRoleIndex[1]-1;roleIndex2<roleArr[1].length-1;roleIndex2++){
+    //         if(roleArr[roleIndex1][roleIndex2]==1){
+    //             count = ++count
+    //             console.log("第"+count+"个角色")
+    //             await gwindowsBot.clickMouse(hwnd,firstRole[0]+roleStep[0]*roleIndex2, firstRole[1]+roleStep[1]*roleIndex1, 1 ,{mode:true});
+    //             await gwindowsBot.sleep(800);
+    //             await gwindowsBot.clickMouse(hwnd,firstRole[0]+roleStep[0]*roleIndex2, firstRole[1]+roleStep[1]*roleIndex1, 1 ,{mode:true});
+    //             await gwindowsBot.sleep(10000);
+
+    //             for (let index = 0; index < funcs.length; index++) {
+    //                 await funcs[index]();
+    //             }
+    //         } 
+    //     }
+    //     startRoleIndex[1]=1
+    // }
+    // startRoleIndex[0]=1
 }
 
 async function getFish(){
     console.log("--姜太公收鱼--")
-    await gwindowsBot.clickMouse(hwnd,jiangtaigongNpc[0], jiangtaigongNpc[1], 1 ,{mode:true});
-    await gwindowsBot.sleep(2000);
-    await gwindowsBot.clickMouse(hwnd,zhuangtai2[0], zhuangtai2[1], 1 ,{mode:true});
-    await gwindowsBot.sleep(1000);
+    // await gwindowsBot.clickMouse(hwnd,jiangtaigongNpc[0], jiangtaigongNpc[1], 1 ,{mode:true});
+    // await gwindowsBot.sleep(2000);
+    // await gwindowsBot.clickMouse(hwnd,zhuangtai2[0], zhuangtai2[1], 1 ,{mode:true});
+    // await gwindowsBot.sleep(1000);
     for(row =0;row<2;row++){
-        for(col= 0 ;col<8;col++){
+        for(col= 3 ;col<8;col++){
             let fishX = getFishBagStart[0]+fishbagStep*col
             let fishY = row==0 ? getFishBagStart[1]:getFishBagEnd[1]
             let fishIsEmpty = await gwindowsBot.compareColor(hwnd, fishX, fishY, kongColor,kongColorOptions);
@@ -193,5 +204,73 @@ async function quitToRoleFun(){
     await gwindowsBot.sleep(1000);
     await gwindowsBot.clickMouse(hwnd,quitToRole[0], quitToRole[1], 1 ,{mode:true});
     await gwindowsBot.sleep(8000);
+}
+
+function resolutionHandle(resolution){
+    //分辨率处理
+    switch(resolution){
+        case "1920_1080":
+            jiangtaigongNpc= [442, 575]
+            jiangtaigongNpcClose= [933, 247]
+            zhuangtai1= [359, 577]
+            zhuangtai2= [359, 598]
+            fishTong= [768, 517]
+            useFishTong= [797, 600]
+            quitToRole= [617, 453]
+            xuandan= [1564, 813]
+            daoju= [ 85, 170]
+            cangku= [ 99, 284]
+            xiaohaoTab = [114, 85]
+            firstBag = [64, 123]
+            lingyaoBag = [60, 172]
+
+            lingyaoOptions = {region:[44, 116, 166, 152], sim:0.5};  //范围是任务栏的前三个框
+            bagTabStep = 70
+
+            getFishBagStart = [670, 290]
+            getFishBagEnd = [926, 327]
+
+            bagStart = [126, 313] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
+            bagEnd = [583, 325]
+            bagStep = 40
+            bagGapStep = 12
+
+            firstRole=[291, 354]
+            roleStep=[200, 250]
+            break;
+        case "2560_1440":
+            jiangtaigongNpc= [456, 788]
+            jiangtaigongNpcClose= [1095, 337]
+            zhuangtai1= [510, 685]
+            zhuangtai2= [512, 709]
+            fishTong= [939, 606]
+            useFishTong= [957, 690]
+            quitToRole= [607, 447]
+            xuandan= [1885, 995]
+            daoju= [87, 169]
+            cangku= [92, 281]
+            xiaohaoTab = [114, 85]
+            firstBag = [68, 121]
+            lingyaoBag = [60, 172]
+
+            lingyaoOptions = {region:[44, 116, 166, 152], sim:0.5};  //范围是任务栏的前三个框
+            bagTabStep = 70
+
+            // getFishBagStart = [845, 369] //右上角
+            getFishBagStart = [845, 374] //下居中
+            getFishBagEnd = [1097, 405]
+
+            bagStart = [283, 405] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
+            bagEnd = [570, 417]
+            bagStep = 40
+            bagGapStep = 12
+
+            firstRole=[453, 424]
+            roleStep=[200, 300]
+            break;
+        default:
+            
+    }
+    fishbagStep = (getFishBagEnd[0]-getFishBagStart[0])/7
 }
 
