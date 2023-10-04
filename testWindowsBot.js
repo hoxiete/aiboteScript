@@ -42,7 +42,7 @@ let fishbagStep
 
 let roleArr = [[0, 1, 1, 1, 1, 1],
 [0, 1, 1, 1, 0, 0]]
-let startRoleIndex = [1, 1] //第一排第二个角色
+let startRoleIndex = [1, 6] //第一排第二个角色
 
 let saveBagMaxCol = 10 //
 
@@ -52,7 +52,10 @@ let bagKongImg = "./pic/bagKongImg.png";
 
 let fishKongImg = "./pic/fishKongImg.png";
 
+let fishReadyImg = "./pic/fishReadyImg.png";
+
 let kongImgOptions = { sim: 0.95, mode: true };
+let fishReadyOptions = { region: [646, 230, 690, 264], sim: 0.95, mode: true };
 
 
 let resolution = "1920_1080"
@@ -70,11 +73,13 @@ async function windowsMain(windowsBot) {
     let count = 0
     let roleNum = roleArr.flat().filter(i => i == 1).length
     console.log("共计 " + roleNum + " 个角色参与收鱼 ")
-    let waitTime = (10 - roleNum) * 60000 + 69000
     resolutionHandle(resolution)
+    let startTime
     while (true) {
         count = ++count
-        console.log("开始第 " + count + " 波收鱼计划---" + new Date())
+        startTime = new Date()
+        // console.group("开始第 " + count + " 波收鱼计划---" + startTime)
+        console.log("开始第 " + count + " 波收鱼计划---" + startTime)
         await choiceRoleAndExcute(
             // await choiceRoleAndExcuteTest(
             () => getFish()
@@ -85,8 +90,14 @@ async function windowsMain(windowsBot) {
             ,
             () => quitToRoleFun()
         )
-        console.log("《结束》等待" + waitTime / 1000 + "秒后开始下一轮.....")
-        await gwindowsBot.sleep(waitTime);
+        let spendTime = parseInt(new Date - startTime)
+        console.log("收鱼结束,耗时 " + spendTime / 1000 + " 秒")
+        // console.groupEnd()
+        // let waitTime = 600000 - spendTime  + 20000  //添加20秒冗余的角色收鱼步骤耗费时间 
+        // if(waitTime>0){
+        //     console.log("等待" + waitTime / 1000 + "秒后开始下一轮.....")
+        //     await gwindowsBot.sleep(waitTime);
+        // }
     }
 }
 
@@ -97,6 +108,7 @@ async function choiceRoleAndExcute(...funcs) {
             if (roleArr[roleIndex1][roleIndex2] == 1) {
                 count = ++count
                 console.log("<<===第 " + count + " 个角色===>>")
+                // console.group("<<===第 " + count + " 个角色===>>")
                 await gwindowsBot.clickMouse(hwnd, firstRole[0] + roleStep[0] * roleIndex2, firstRole[1] + roleStep[1] * roleIndex1, 1, { mode: true });
                 await gwindowsBot.sleep(800);
                 await gwindowsBot.clickMouse(hwnd, firstRole[0] + roleStep[0] * roleIndex2, firstRole[1] + roleStep[1] * roleIndex1, 1, { mode: true });
@@ -104,6 +116,7 @@ async function choiceRoleAndExcute(...funcs) {
                 for (let index = 0; index < funcs.length; index++) {
                     await funcs[index]();
                 }
+                // console.groupEnd()
             }
         }
         startRoleIndex[1] = 1
@@ -128,10 +141,18 @@ async function FishIsEmpty(x, y) {
 }
 async function getFish() {
     console.log("----第一步 收鱼----")
-    await gwindowsBot.clickMouse(hwnd, jiangtaigongNpc[0], jiangtaigongNpc[1], 1, { mode: true });
-    await gwindowsBot.sleep(2000);
-    await gwindowsBot.clickMouse(hwnd, zhuangtai2[0], zhuangtai2[1], 1, { mode: true });
-    await gwindowsBot.sleep(1000);
+    while (true) {
+        await gwindowsBot.clickMouse(hwnd, jiangtaigongNpc[0], jiangtaigongNpc[1], 1, { mode: true });
+        await gwindowsBot.sleep(2000);
+        await gwindowsBot.clickMouse(hwnd, zhuangtai2[0], zhuangtai2[1], 1, { mode: true });
+        await gwindowsBot.sleep(1000);
+        let fishAready = await gwindowsBot.findImage(hwnd, fishReadyImg, fishReadyOptions);
+        if (fishAready) {
+            break
+        }
+        console.log("鱼获未准备好,等待10秒......")
+        await gwindowsBot.sleep(10000);
+    }
     for (row = 0; row < 2; row++) {
         for (col = 0; col < 8; col++) {
             let fishX = getFishBagStart[0] + fishbagStep * col
@@ -144,7 +165,7 @@ async function getFish() {
             }
             await gwindowsBot.clickMouse(hwnd, fishX, fishY, 3, { mode: true });
             await gwindowsBot.sleep(500);
-            await gwindowsBot.moveMouse(hwnd, bagEnd[0], bagEnd[1], { mode: true });
+            await gwindowsBot.moveMouse(hwnd, fishX-100, fishY, { mode: true });
             await gwindowsBot.sleep(800);
             let bagX = 0
             for (bagIndex = 0; bagIndex < saveBagMaxCol; bagIndex++) {
@@ -155,8 +176,8 @@ async function getFish() {
                     break;
                 }
             }
-            await gwindowsBot.moveMouse(hwnd, bagX + 15, bagStart[1], { mode: true });
-            await gwindowsBot.clickMouse(hwnd, bagX + 15, bagStart[1], 4, { mode: true });
+            await gwindowsBot.moveMouse(hwnd, bagX + 20, bagStart[1] + 20, { mode: true });
+            await gwindowsBot.clickMouse(hwnd, bagX + 20, bagStart[1] + 20, 4, { mode: true });
         }
     }
     await gwindowsBot.clickMouse(hwnd, destoryFishBag[0], destoryFishBag[1], 1, { mode: true });
