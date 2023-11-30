@@ -42,20 +42,21 @@ let fishbagStep
 
 let roleArr = [[0, 1, 1, 1, 1, 1],
 [0, 1, 1, 1, 0, 0]]
-let startRoleIndex = [1, 6] //第一排第二个角色
+let startRoleIndex = [1, 1] //第一排第二个角色
 
 let saveBagMaxCol = 10 //
 
 let lingyaoColor = "#641AFD"
 
-let bagKongImg = "./pic/bagKongImg.png";
+let bagKongImg = "./project_goFish/pic/bagKongImg.png";
 
-let fishKongImg = "./pic/fishKongImg.png";
+let fishKongImg = "./project_goFish/pic/fishKongImg.png";
 
-let fishReadyImg = "./pic/fishReadyImg.png";
+let fishReadyImg = "./project_goFish/pic/fishReadyImg.png";
 
 let kongImgOptions = { sim: 0.95, mode: true };
-let fishReadyOptions = { region: [646, 230, 690, 264], sim: 0.95, mode: true };
+// let fishReadyOptions = { region: [646, 230, 690, 264], sim: 0.95, mode: true };
+let fishReadyOptions = { region: [806, 324, 848, 353], sim: 0.95, mode: true };
 
 
 let resolution = "1920_1080"
@@ -67,6 +68,7 @@ let time
 async function windowsMain(windowsBot) {
     gwindowsBot = windowsBot
     hwnd = await windowsBot.findWindow("LATALE_CLIENT", null);
+    let fishAready = await gwindowsBot.findImage(hwnd, fishReadyImg, fishReadyOptions);
     //设置隐式等待
     // await windowsBot.setImplicitTimeout(5000);
 
@@ -286,31 +288,32 @@ function resolutionHandle(resolution) {
             firstRole = [291, 354]
             roleStep = [200, 250]
             break;
-        case "2560_1440":
-            jiangtaigongNpc = [456, 788]
+         case "2560_1440":
+            jiangtaigongNpc = [442, 741]
             jiangtaigongNpcClose = [1095, 337]
-            // todo destoryFishBag = [798, 442]
+            destoryFishBag = [955, 531]
+            destoryFishBagConfirm = [952, 497]
             zhuangtai1 = [510, 685]
             zhuangtai2 = [512, 709]
             fishTong = [939, 606]
             useFishTong = [957, 690]
-            quitToRole = [607, 447]
-            xuandan = [1885, 995]
-            daoju = [87, 169]
-            cangku = [92, 281]
+            quitToRole = [1193, 725]
+            xuandan = [1889, 993]
+            daoju = [661, 449]
+            cangku = [1656, 1085]
             xiaohaoTab = [114, 85]
-            firstBag = [68, 121]
+            firstBag = [41, 113]
             lingyaoBag = [60, 172]
 
             lingyaoOptions = { region: [44, 116, 166, 152], sim: 0.5, mode: true };  //范围是任务栏的前三个框
             bagTabStep = 70
 
             // getFishBagStart = [845, 369] //右上角
-            getFishBagStart = [845, 374] //下居中
-            getFishBagEnd = [1097, 405]
+            getFishBagStart = [817, 364] //下居中
+            getFishBagEnd = [1070, 401]
 
-            bagStart = [283, 405] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
-            bagEnd = [570, 417]
+            bagStart = [255, 398] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
+            bagEnd = [643, 398]
             bagStep = 40
             bagGapStep = 12
 
