@@ -21,17 +21,18 @@ let strategys = {
     huiyin: {
         caseType: 1, //精确判断类型
         // 1: { name: "眉心贴", words: "道具", offset: 0, path: "./project_xiangqian/pic/meixin.png" },
-        1: { name: "眉心贴", words: "彩虹", offset: 0, path: "./project_xiangqian/pic/meixin.png" },
+        origin:{1: { name: "眉心贴", words: "彩虹", offset: 0, path: "./project_xiangqian/pic/meixin.png" },
         2: { name: "戒指", words: "彩虹", offset: 0, path: "./project_xiangqian/pic/jiezhi.png" }, 3: { name: "耳环", words: "彩虹", offset: 0, path: "./project_xiangqian/pic/erhuan.png" },
-        4: { name: "披风", words: "物理", offset: 0, path: "./project_xiangqian/pic/pifeng.png" }, 5: { name: "眼镜", words: "命中", offset: -80, path: "./project_xiangqian/pic/yanjing.png" },
+        4: { name: "披风", words: "物理", offset: 0, path: "./project_xiangqian/pic/pifeng.png" }, 5: { name: "眼镜", words: "命中", offset: -80, path: "./project_xiangqian/pic/yanjing.png" }}
     },
     teshu: {
         caseType: 0, //只判断非空类型
-        1: { name: "特殊", words: "武器", offset: 0 }
+        origin:{1: { name: "特殊", words: "武器", offset: 0 }}
 
     }
 }
-let strategyId
+let caseType
+let debugMode = false
 
 let pattern = /\d{1,2}/
 // let resolution = "1920_1080"
@@ -46,142 +47,45 @@ async function windowsMain(windowsBot) {
 
     resolutionHandle(resolution)
     // await windowsBot.initOcr("192.168.1.3")
-    await windowsBot.initOcr("192.168.1.3", { enableGPU: true, enableTensorrt: true });
+    await windowsBot.initOcr("192.168.100.3", { enableGPU: true, enableTensorrt: true });
 
-    strategyId = "teshu"
-    strategys = strategys[strategyId]
+    // huiyin   teshu
+    inlayStrategyConfig("teshu")
+
+    debugMode = true
+
     let row = 3
 
     // func_1to10(row)
+    //func_NtoM_ByStep(1, 10, 3, 10)
 
     let n = 10
     let m = 13
 
     // func_10NtoM(n,m,row)
+    // func_NtoM_ByStep(10, 13, 3, 1)
     let step = 3
-    func_StepNtoM(1, 10, 3, 3)
+    func_NtoM_ByStep(1, 10, 3, 3)
+    
 
 
 }
 
-/**装备从lv0到10 连点
+/**装备从lv n到m 连续执行step值的次数
 * @param {}
 */
-async function func_1to10(row) {
+async function func_NtoM_ByStep(n, m, row, step) {
     const arr = Array.from(new Array(row), () => new Array(12).fill(0))
-    for (bagRow = 0; bagRow < row; bagRow++) {
-        let bagY = firstBag[1] + bagStep * bagRow
-        for (bagCol = 0; bagCol < 12; bagCol++) {
-            //监测是否有对应装备（是眉心就镶嵌掉落，耳环及戒指就钱掉，披风就暴击，眼镜就命中）
-            let bagX = firstBag[0] + bagStep * bagCol + bagGapStep * Math.floor(bagCol / 4)
-
-            let id = await findType(bagX, bagY)
-            if (id == 0 || id == 6) {
-                console.log(`第${bagRow + 1}排,第${bagCol + 1}列 装备为空\t`);
-                continue
-            }
-            console.log(`第${bagRow + 1}排,第${bagCol + 1}列 ${strategys[id]["name"]}`)
-            //拖入镶嵌栏
-            await dragToInlay(bagX, bagY)
-
-            //获取目标属性当前lv
-            let shuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"], { ...oldAttributeRegion, mode: true });
-            //点击超级镶嵌
-            await gwindowsBot.clickMouse(hwnd, superXiangqian[0], superXiangqian[1], 1, { mode: true });
-
-            let msg = await preInlay(shuxingPosArr, id, 10)
-            arr[bagRow][bagCol] = msg
-            if (msg != "Y") {
-                continue
-            }
-            //     
-            let waitShuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"], { ...waitAttributeRegion, mode: true })
-            if (waitShuxingPosArr == null) {
-                arr[bagRow][bagCol] = "N5"
-                console.log(`待镶嵌属性字段未找到`)
-                continue
-            }
-
-            await gwindowsBot.clickMouse(hwnd, waitShuxingPosArr[0].x + 20, waitShuxingPosArr[0].y, 1, { mode: true }); //这里选择属性时鼠标指针向右移一点，防止识别数字时失败
-            for (let count = 0; count < 10; count++) {
-                let res = await doInlay(waitShuxingPosArr, id, 10)
-                if (res != "Y") {
-                    arr[bagRow][bagCol] = res
-                    break
-                }
-            }
-        }
-    }
-    fs.writeFile("./runResult.json", JSON.stringify(arr), err => { if (err) { console.error(err); } })
-}
-
-async function func_10NtoM(n, m, row) {
-    // const arr = Array.from(new Array(3), () => new Array(12).fill(0))
-    let frequency = m - n
+    let frequency = Math.ceil((m - n) / step) //todo向上取整
     for (let count = 0; count < frequency; count++) {
-        console.log(`。。。第${count + 1}锤。。。`);
         for (bagRow = 0; bagRow < row; bagRow++) {
             let bagY = firstBag[1] + bagStep * bagRow
             for (bagCol = 0; bagCol < 12; bagCol++) {
-                //监测是否有对应装备（是眉心就镶嵌掉落，耳环及戒指就钱掉，披风就暴击，眼镜就命中）
+
                 let bagX = firstBag[0] + bagStep * bagCol + bagGapStep * Math.floor(bagCol / 4)
 
                 let id = await findType(bagX, bagY)
-                if (id == 0 || id == 6) {
-                    console.log(`第${bagRow + 1}排,第${bagCol + 1}列 装备为空\t`);
-                    continue
-                }
-                console.log(`第${bagRow + 1}排,第${bagCol + 1}列 ${strategys[id]["name"]}`)
-
-                //拖入镶嵌栏
-                await dragToInlay(bagX, bagY)
-
-                //获取目标属性当前lv
-                let shuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"], { ...oldAttributeRegion, mode: true });
-                //点击超级镶嵌
-                await gwindowsBot.clickMouse(hwnd, superXiangqian[0], superXiangqian[1], 1, { mode: true });
-
-                let msg = await preInlay(shuxingPosArr, id, m)
-                // arr[bagRow][bagCol] = msg
-                if (msg != "Y") {
-                    continue
-                }
-                //     
-                shuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"], { ...waitAttributeRegion, mode: true })
-                if (shuxingPosArr == null) {
-                    // arr[bagRow][bagCol] = "N3"
-                    console.log(`待镶嵌属性未找到`)
-                    continue
-                }
-
-                await gwindowsBot.clickMouse(hwnd, shuxingPosArr[0].x + 20, shuxingPosArr[0].y, 1, { mode: true }); //这里选择属性时鼠标指针向右移一点，防止识别数字时失败
-
-                let res = await doInlay(shuxingPosArr, id, m)
-                if (res != "Y") {
-                    // arr[bagRow][bagCol] = res
-                    continue
-                }
-            }
-        }
-    }
-    //fs.writeFile("./runResult.json",JSON.stringify(arr), err => {if (err) {console.error(err);}})
-}
-
-/**装备从lv0到10 连点
-* @param {}
-*/
-async function func_StepNtoM(n, m, row, step) {
-    const arr = Array.from(new Array(row), () => new Array(12).fill(0))
-    let frequency = (m - n) / step //todo向上取整
-    for (let count = 0; count < frequency; count++) {
-        for (bagRow = 0; bagRow < row; bagRow++) {
-            let bagY = firstBag[1] + bagStep * bagRow
-            for (bagCol = 0; bagCol < 12; bagCol++) {
-
-                let bagX = firstBag[0] + bagStep * bagCol + bagGapStep * Math.floor(bagCol / 4)
-
-                let id = await isEmpty(bagX, bagY)
-                if (id == 0) {
+                if (id == 0 || id == 999) {
                     console.log(`第${bagRow + 1}排,第${bagCol + 1}列 装备为空\t`);
                     continue
                 }
@@ -248,10 +152,10 @@ async function doInlay(posArr, id, targetLevel) {
         }
     }
     if (Number.parseInt(waitLevel) < targetLevel) {
-        await gwindowsBot.clickMouse(hwnd, execute[0], execute[1], 1, { mode: true }); //点击执行
+        await confirmExecute() //点击执行
         await gwindowsBot.sleep(1300);
     } else if (Number.parseInt(waitLevel) == targetLevel) {
-        await gwindowsBot.clickMouse(hwnd, execute[0], execute[1], 1, { mode: true }); //点击执行
+        await confirmExecute() //点击执行
         await gwindowsBot.sleep(1300);
         return waitLevel
     } else {
@@ -276,7 +180,7 @@ async function preInlay(shuxingPosArr, id, targetLevel) {
         if (targetLevel == 10) {
             await gwindowsBot.clickMouse(hwnd, shuxingPosArr[0].x, shuxingPosArr[0].y, 1, { mode: true }); //点击属性
             await gwindowsBot.sleep(200);
-            await gwindowsBot.clickMouse(hwnd, execute[0], execute[1], 1, { mode: true }); //点击执行
+            await confirmExecute() //点击执行
             await gwindowsBot.sleep(1500);
         }
     } else {
@@ -303,6 +207,15 @@ async function preInlay(shuxingPosArr, id, targetLevel) {
         }
     }
     return "Y"
+}
+
+/**
+ * 鼠标点击执行按钮的方法,调试可关
+ */
+async function confirmExecute(){
+    if(!debugMode){
+        await gwindowsBot.clickMouse(hwnd, execute[0], execute[1], 1, { mode: true }); //点击执行
+    }
 }
 
 function getMatch(str) {
@@ -334,50 +247,23 @@ async function findType(x, y) {
     if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/kong.png", option)) {
         return 0
     }
-    if(strategys.caseType == 0){
-        return strategys.origin
+    if(caseType == 0){
+        return 1
     }else{
-        for (let key in strategys.origin) {
-            let path = strategys.origin[key].path;
+        for (let key in strategys) {
+            let path = strategys[key].path;
             if(await gwindowsBot.findImage(hwnd, path, option) != null){
                 return key
             }
         }
     }
     return 999
-    
-    //是否为空
-    if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/kong.png", option)) {
-        return 0
-    } else if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/meixin.png", option) != null) {
-        return 1 //眉心
-    } else if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/jiezhi.png", option) != null) {
-        return 2 //戒指
-    } else if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/erhuan.png", option) != null) {
-        return 3 //耳环
-    } else if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/pifeng.png", option) != null) {
-        return 4 //披风
-    } else if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/yanjing.png", option) != null) {
-        return 5 //眼镜
-    } else {
-        return 6
     }
+
+function inlayStrategyConfig(id){
+    caseType = strategys[id].caseType
+    strategys = strategys[id].origin
 }
-
-/**装备槽是否为空
-* @param {}
-*/
-
-async function isEmpty(x, y) {
-    let option = { region: [x, y, x + 40, y + 40], ...zhuangbeiImgOption }
-    //是否为空
-    if (await gwindowsBot.findImage(hwnd, "./project_xiangqian/pic/kong.png", option)) {
-        return 0
-    } else {
-        return 1
-    }
-}
-
 
 function resolutionHandle(resolution) {
     //分辨率处理
