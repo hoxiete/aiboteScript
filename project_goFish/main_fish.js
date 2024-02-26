@@ -68,7 +68,7 @@ let time
 async function windowsMain(windowsBot) {
     gwindowsBot = windowsBot
     hwnd = await windowsBot.findWindow("LATALE_CLIENT", null);
-    let fishAready = await gwindowsBot.findImage(hwnd, fishReadyImg, fishReadyOptions);
+
     //设置隐式等待
     // await windowsBot.setImplicitTimeout(5000);
 

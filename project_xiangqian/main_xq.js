@@ -16,14 +16,26 @@ let waitAttributeRegion
 
 //打印装备level
 let zhuangbeiImgOption = {sim:0.7, mode:true}
-let strategys= {0:{name:"空",words:null}
-            ,1:{name:"眉心贴",words:"道具",offset:0},
-            // ,1:{name:"眉心贴",words:"彩虹",offset:0},
-            2:{name:"戒指",words:"彩虹",offset:0},3:{name:"耳环",words:"彩虹",offset:0},
-            4:{name:"披风",words:"物理",offset:0},5:{name:"眼镜",words:"命中",offset:-80},
+let strategys= {
+            0:{name:"空",words:null}
+            // ,1:{name:"眉心贴",words:"道具",offset:0},
+            ,1:{name:"眉心贴",words:"彩虹",offset:0},
+            2:{name:"戒指",words:"彩虹",offset:0},
+            3:{name:"耳环",words:"彩虹",offset:0},
+            4:{name:"披风",words:"物理",offset:0},
+            5:{name:"眼镜",words:"命中",offset:-80},
             6:{name:"未知",words:null},}
 
 let pattern = /\d{1,2}/
+
+
+let err_code = {
+    "N1":{msg:"目标镶嵌属性未找到"},
+    "N2":{msg:"原目标属性字段识别错误"},
+    "N3":{msg:"原目标属性等级识别错误"},
+    "N5":{msg:"待镶嵌栏属性字段未找到"},
+    "N6":{msg:"待镶嵌属性等级识别错误"}
+}
 // let resolution = "1920_1080"
 let resolution = "2560_1440"
 
@@ -37,13 +49,12 @@ async function windowsMain(windowsBot) {
     resolutionHandle(resolution)
     // await windowsBot.initOcr("192.168.1.3")
     await windowsBot.initOcr("192.168.1.3",{enableGPU:true,enableTensorrt:true});
-    let row = 3
+    let row = 6
+    // func_1to10(row)
 
-    func_1to10(row)
-
-    let n = 10
-    let m = 13
-    // func_10NtoM(n,m,row)
+    let n = 16
+    let m = 20
+    func_10NtoM(n,m,row)
     
 }
 
@@ -74,14 +85,15 @@ async function func_1to10(row){
 
             let msg =  await preInlay(shuxingPosArr,id,10)
             arr[bagRow][bagCol] = msg
-            if(msg !="Y"){
+            if(msg !="Y" && !Number.isInteger(msg)){
+                console.log(`${err_code[msg]}`)
                 continue
             }
             //     
             let waitShuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"],{...waitAttributeRegion,  mode:true})
             if(waitShuxingPosArr == null){
                 arr[bagRow][bagCol] = "N5"
-                console.log(`待镶嵌属性字段未找到`)
+                console.log(`${err_code["N5"].msg}`)
                 continue
             }
 
@@ -126,14 +138,14 @@ async function func_10NtoM(n,m,row){
 
                 let msg =  await preInlay(shuxingPosArr,id,m)
                 // arr[bagRow][bagCol] = msg
-                if(msg !="Y"){
+                if(msg !="Y" && !Number.isInteger(msg)){
+                    console.log(`${err_code[msg].msg}`)
                     continue
                 }
                 //     
                 shuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"],{...waitAttributeRegion,  mode:true})
                 if(shuxingPosArr == null){
-                    // arr[bagRow][bagCol] = "N3"
-                    console.log(`待镶嵌属性未找到`)
+                    console.log(`${err_code["N5"].msg}`)
                     continue
                 }
 
@@ -160,7 +172,7 @@ async function doInlay(posArr,id,targetLevel){
         await gwindowsBot.sleep(1000);
         waitlevelStr = await gwindowsBot.getWords(hwnd, {region:waitRegion,  mode:true})
         if(waitlevelStr==null){
-            console.log(`待镶嵌属性等级识别为空, 跳过`)
+            console.log(`${err_code[msg]}`)
             return "N5"
         }
     }
@@ -170,8 +182,11 @@ async function doInlay(posArr,id,targetLevel){
         if(waitlevelStr=="Lv.了￥"){
             waitLevel = 7
             console.log(`识别字符串为：${waitlevelStr},将等级置为7`)
+        }else if(waitlevelStr == "I.了物理/商法攻击盒中"){
+            waitLevel = 7
+            console.log(`识别字符串为：${waitlevelStr},将等级置为7`)
         }else{
-            console.log(`待镶嵌属性等级识别错误, 跳过,识别字符串为：${waitlevelStr}`)
+            console.log(`识别字符串为：${waitlevelStr}`)
             return "N6"
         }
     }
@@ -194,11 +209,10 @@ async function doInlay(posArr,id,targetLevel){
 async function preInlay(shuxingPosArr,id,targetLevel){
     if(shuxingPosArr == null){
         //不存在则去待镶嵌栏中选择对应属性并开始镶嵌
-        await gwindowsBot.sleep(200);
+        await gwindowsBot.sleep(100);
         shuxingPosArr = await gwindowsBot.findWords(hwnd, strategys[id]["words"], {...newAttributeRegion, mode:true});
         
         if(shuxingPosArr == null){
-            console.log(`目标镶嵌属性未找到`)
             return "N1"
         }
         if(targetLevel==10){
@@ -215,14 +229,13 @@ async function preInlay(shuxingPosArr,id,targetLevel){
             await gwindowsBot.sleep(1000);
             oldLevelStr = await gwindowsBot.getWords(hwnd, {region:oldRegion,  mode:true})
             if(oldLevelStr==null){
-                console.log(`原属性识别错误, 跳过`)
                 return "N2"
             }
         }
-        //大于10就切换
+        //大于targetLevel 就切换
         let oldLevel = getMatch(oldLevelStr)
         if(oldLevel==null){
-            console.log(`原属性等级识别错误, 跳过,识别字符串为：${oldLevelStr}`)
+            console.log(`识别字符串为：${oldLevelStr}`)
             return "N3"
         }
         if(Number.parseInt(oldLevel) >= targetLevel){
@@ -287,7 +300,7 @@ function resolutionHandle(resolution) {
             firstBag = [47, 117]
             superXiangqian = [747, 523]
             execute = [747, 602]
-            bagStart = [255, 398] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
+            bagStart = [255, 398] 
             bagEnd = [643, 398]
             bagStep = 40
             bagGapStep = 12
