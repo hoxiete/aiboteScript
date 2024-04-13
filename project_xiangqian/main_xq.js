@@ -59,11 +59,11 @@ async function windowsMain(windowsBot) {
     await windowsBot.initOcr("192.168.100.3", { enableGPU: true, enableTensorrt: true });
 
     // huiyin   teshu
-    inlayStrategyConfig("huiyin")
+    inlayStrategyConfig("teshu")
 
-    debugMode = true
+    debugMode = false
 
-    let row = 3
+    let row = 4
 
     // func_1to10(row)
     //func_NtoM_ByStep(1, 10, 3, 10)
@@ -74,7 +74,7 @@ async function windowsMain(windowsBot) {
     // func_10NtoM(n,m,row)
     // func_NtoM_ByStep(10, 13, 3, 1)
     let step = 3
-    func_NtoM_ByStep(1, 10, 3, 3)
+    func_NtoM_ByStep(10, 13, row, 1)
     
 
 
@@ -123,7 +123,7 @@ async function func_NtoM_ByStep(n, m, row, step) {
                 await gwindowsBot.clickMouse(hwnd, waitShuxingPosArr[0].x + 20, waitShuxingPosArr[0].y, 1, { mode: true }); //这里选择属性时鼠标指针向右移一点，防止识别数字时失败
                 for (let count = 0; count < step; count++) {
 
-                    let res = await doInlay(waitShuxingPosArr, id, 10)
+                    let res = await doInlay(waitShuxingPosArr, id, m)
                     if (res != "Y") {
                         arr[bagRow][bagCol] = res
                         break
