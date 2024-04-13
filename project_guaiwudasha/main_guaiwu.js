@@ -7,9 +7,20 @@ let gwindowsBot
 let hwnd
 
 
+let cangku
+let chuansong
+let xuandan
+let npcPos
+let taskPos
+let jieshouPos
+let taskBackPos
+let toFloorPos
+let toFloorConfirmPos
+let finishTaskPos
+let closeNpcPos
 
-let resolution = "1920_1080"
-// let resolution = "2560_1440"
+// let resolution = "1920_1080"
+let resolution = "2560_1440"
 let time
 /**用作代码提示，windowsMain函数会被多次调用，注意使用全局变量
 * @param {WindowsBot} windowsBot
@@ -33,13 +44,13 @@ async function windowsMain(windowsBot) {
         console.log("开始第 " + count + " 波收鱼计划---" + startTime)
         await choiceRoleAndExcute(
             // await choiceRoleAndExcuteTest(
-            () => gotoPlace()
+            () => gotoPlace(true)
             ,
             () => choiceTask()
             ,
             () => toKillGuai()
             ,
-            () => gotoPlace()
+            () => gotoPlace(false)
             ,
             () => completeTask()
             ,
@@ -80,15 +91,6 @@ async function choiceRoleAndExcuteTest(...funcs) {
     }
 }
 
-async function FbagIsEmpty(x, y) {
-    // console.log([x,y,x+50,y+50])
-    return await gwindowsBot.findImage(hwnd, bagKongImg, { region: [x, y, x + 40, y + 40], sim: kongImgOptions.sim, mode: kongImgOptions.mode });
-    // return await gwindowsBot.compareColor(hwnd, x, y, kongColor,kongColorOptions);
-}
-async function FishIsEmpty(x, y) {
-    return await gwindowsBot.findImage(hwnd, fishKongImg, { region: [x, y, x + 30, y + 30], sim: kongImgOptions.sim, mode: kongImgOptions.mode });
-    // return await gwindowsBot.compareColor(hwnd, x, y, kongColor,kongColorOptions);
-}
 async function gotoPlace(wait) {
     console.log("----第一步 去npc位置----")
         openChuansong()
@@ -109,29 +111,41 @@ async function openChuansong(){
 
 async function choiceTask() {
     console.log("----第二步 接受任务----")
-    await gwindowsBot.clickMouse(hwnd, 954, 652, 1, { mode: true });
+    await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], { mode: true });
     await gwindowsBot.sleep(2000);
-    await gwindowsBot.clickMouse(hwnd, 501, 725, 1, { mode: true });
+    await gwindowsBot.clickMouse(hwnd, taskPos[0], taskPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
-    await gwindowsBot.clickMouse(hwnd, 260, 418, 1, { mode: true });
+    await gwindowsBot.clickMouse(hwnd, jieshouPos[0], jieshouPos[1], { mode: true });
     await gwindowsBot.sleep(500);
-    await gwindowsBot.clickMouse(hwnd, 844, 847, 1, { mode: true });
+    await gwindowsBot.clickMouse(hwnd, taskBackPos[0], taskBackPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
+    await gwindowsBot.clickMouse(hwnd, toFloorPos[0], toFloorPos[1], 1, { mode: true });
+    await gwindowsBot.sleep(1000);
+    await gwindowsBot.clickMouse(hwnd, toFloorConfirmPos[0], toFloorConfirmPos[1], 1, { mode: true });
+    await gwindowsBot.sleep(1000);
+
+}
+
+async function completeTask() {
+    console.log("----第四步 完成任务----")
+    await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], { mode: true });
+    await gwindowsBot.sleep(2000);
+    await gwindowsBot.clickMouse(hwnd, taskPos[0], taskPos[1], 1, { mode: true });
+    await gwindowsBot.sleep(1000);
+    await gwindowsBot.clickMouse(hwnd, finishTaskPos[0], finishTaskPos[1], { mode: true });
+    await gwindowsBot.sleep(500);
+    await gwindowsBot.clickMouse(hwnd, closeNpcPos[0], closeNpcPos[1], { mode: true });
+    await gwindowsBot.sleep(500);
 }
 
 async function toKillGuai() {
-    console.log("----第二步 接受任务----")
-    await gwindowsBot.clickMouse(hwnd, 954, 652, 1, { mode: true });
-    await gwindowsBot.sleep(2000);
-    await gwindowsBot.clickMouse(hwnd, 501, 725, 1, { mode: true });
-    await gwindowsBot.sleep(1000);
-    await gwindowsBot.clickMouse(hwnd, 260, 418, 1, { mode: true });
-    await gwindowsBot.sleep(500);
-    await gwindowsBot.clickMouse(hwnd, 844, 847, 1, { mode: true });
-    await gwindowsBot.sleep(1000);
+    console.log("----第三步 接受任务----")
+    //move to guangdian press ↑
+    //for press → ↑    break by find 200 level
+    //use skill A
 }
 async function quitToRoleFun() {
-    console.log("----第四步 选择下一个角色----")
+    console.log("----第五步 选择下一个角色----")
     await gwindowsBot.clickMouse(hwnd, xuandan[0], xuandan[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
     await gwindowsBot.clickMouse(hwnd, quitToRole[0], quitToRole[1], 1, { mode: true });
@@ -144,7 +158,17 @@ function resolutionHandle(resolution) {
         case "1920_1080":
             quitToRole = [617, 453]
             xuandan = [1564, 813]
+
             chuansong = [526, 239]
+            npcPos = [954, 652]
+            taskPos = [501, 725]
+            jieshouPos = [260, 418]
+            taskBackPos = [844, 847]
+            toFloorPos = []
+            toFloorConfirmPos = []
+            finishTaskPos = []
+            closeNpcPos = []
+
 
             daoju = [85, 170]
             cangku = [1337, 899]
