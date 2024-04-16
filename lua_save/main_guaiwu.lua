@@ -1,5 +1,4 @@
 xuandan = {48197, 45588}
-
 chuansong = {13701, 10930}
 myChuansong = {6710, 4099}
 confirmChuansong = {11038, 24729}
@@ -17,7 +16,7 @@ closeNpcPos = {46225, 15849}
 skillA = {18849, 46089}
 quitToRole = {15673, 22543}
 
-firstRole = {11601, 19902}
+firstRole = {12000, 20000}
 roleStep = {5000, 8000}
 
 roleArr = {{1, 1, 1, 1, 1, 0}, {0, 1, 1, 1, 1, 1}}
@@ -25,12 +24,11 @@ startRoleIndex = {1, 5} -- 第一排第二个角色
 
 function windowsMain()
     local tasklist = {
-       {func = function() return gotoPlace(false) end},
+        {func = function() return gotoPlace(false) end},
         {func = function() return choiceTask() end},
         {func = function() return toKillGuai() end},
         {func = function() return gotoPlace(true) end},
-        {func = function() return completeTask() end}
-        ,
+        {func = function() return completeTask() end},
         {func = function() return quitToRoleFun() end}
     }
     choiceRoleAndExcute(tasklist)
@@ -40,9 +38,10 @@ end
 function choiceRoleAndExcute(funcs)
     for roleIndex1 = startRoleIndex[1], #roleArr do
         for roleIndex2 = startRoleIndex[2], #roleArr[roleIndex1] do
-         clickArr(firstRole[1] + roleStep[1] * roleIndex2,
-                         firstRole[2] + roleStep[2] * roleIndex1)
-                         Sleep(800)
+            local pos = {firstRole[1] + roleStep[1] * (roleIndex2 -1),
+            firstRole[2] + roleStep[2] * (roleIndex1-1)}
+            click(pos)
+            Sleep(800)
             if roleArr[roleIndex1][roleIndex2] == 1 then
                
                         
@@ -63,7 +62,6 @@ function choiceRoleAndExcuteTest(funcs)
 end
 
 function click(p)
-   
     MoveMouseTo(p[1], p[2])
     Sleep(300)
     PressAndReleaseMouseButton(1)
@@ -100,15 +98,15 @@ function choiceTask()
     click(npcPos)
     Sleep(2000)
     click(taskListPos)
-    Sleep(1000)
+    Sleep(500)
     click(chioceTaskPos)
-    Sleep(1000)
+    Sleep(500)
     click(jieshouPos)
     Sleep(500)
     click(taskBackPos)
     Sleep(2000)
     click(toFloorPos)
-    Sleep(1000)
+    Sleep(500)
     click(to190Pos)
     Sleep(1000)
     for index = 0, 10, 1 do
@@ -138,10 +136,10 @@ end
 function toKillGuai()
     OutputLogMessage("----第三步 执行任务----")
     -- move to guangdian press ↑
-    for index = 0, 16, 1 do
-        PlayMacro("右上移动")
-        Sleep(500)
-    end
+    -- for index = 0, 16, 1 do
+        PlayMacro("右上移动持续")
+        Sleep(5000)
+    -- end
     Sleep(5000)
     for index = 0, 12, 1 do
         PlayMacro("右上移动")
