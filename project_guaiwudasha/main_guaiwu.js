@@ -1,4 +1,6 @@
 const WindowsBot = require('WindowsBot');//引用WindowsBot模块
+// var ks = require('node-key-sender');
+// const robot = require("robotjs")
 
 //注册主函数
 WindowsBot.registerMain(windowsMain, "127.0.0.1", 26678);
@@ -9,15 +11,24 @@ let hwnd
 
 let cangku
 let chuansong
+let myChuansong
+let confirmChuansong
 let xuandan
 let npcPos
-let taskPos
+let taskListPos
+let chioceTaskPos
 let jieshouPos
 let taskBackPos
 let toFloorPos
 let toFloorConfirmPos
 let finishTaskPos
 let closeNpcPos
+let toDownFloorPos
+let to190Pos
+
+let roleArr = [[0, 1, 1, 1, 1, 1],
+[0, 1, 1, 1, 0, 0]]
+let startRoleIndex = [1, 1] //第一排第二个角色
 
 // let resolution = "1920_1080"
 let resolution = "2560_1440"
@@ -37,29 +48,24 @@ async function windowsMain(windowsBot) {
     console.log("共计 " + roleNum + " 个角色参与收鱼 ")
     resolutionHandle(resolution)
     let startTime
-    while (true) {
         count = ++count
         startTime = new Date()
-        // console.group("开始第 " + count + " 波收鱼计划---" + startTime)
-        console.log("开始第 " + count + " 波收鱼计划---" + startTime)
-        await choiceRoleAndExcute(
-            // await choiceRoleAndExcuteTest(
-            () => gotoPlace(true)
-            ,
-            () => choiceTask()
-            ,
+        // await choiceRoleAndExcute(
+            await choiceRoleAndExcuteTest(
+            //  () => gotoPlace(true)
+            // ,
+            // () => choiceTask()
+            // ,
             () => toKillGuai()
-            ,
-            () => gotoPlace(false)
-            ,
-            () => completeTask()
-            ,
-            () => quitToRoleFun()
+            // ,
+            // () => gotoPlace(false)
+            // ,
+            // () => completeTask()
+            // ,
+            // () => quitToRoleFun()
         )
         let spendTime = parseInt(new Date - startTime)
         // console.log("收鱼结束,耗时 " + spendTime / 1000 + " 秒")
-
-    }
 }
 
 async function choiceRoleAndExcute(...funcs) {
@@ -94,32 +100,42 @@ async function choiceRoleAndExcuteTest(...funcs) {
 async function gotoPlace(wait) {
     console.log("----第一步 去npc位置----")
         openChuansong()
-        await gwindowsBot.clickMouse(hwnd, 265, 89, 3, { mode: true });
+        await gwindowsBot.clickMouse(hwnd, myChuansong[0], myChuansong[1], 1, { mode: true });
         await gwindowsBot.sleep(500);
-        await gwindowsBot.moveMouse(hwnd, 436, 548, { mode: true });
+        await gwindowsBot.clickMouse(hwnd, confirmChuansong[0], confirmChuansong[1], 1, { mode: true });
         if(wait){
             await gwindowsBot.sleep(5000);
         }
 }
 async function openEsc(){
     await gwindowsBot.clickMouse(hwnd, xuandan[0], xuandan[1], 1, { mode: true });
+    await gwindowsBot.sleep(500);
 }
 async function openChuansong(){
     openEsc()
     await gwindowsBot.clickMouse(hwnd, chuansong[0], chuansong[1], 1, { mode: true });
+    await gwindowsBot.sleep(500);
 }
 
 async function choiceTask() {
     console.log("----第二步 接受任务----")
-    await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], { mode: true });
+    await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], 1,{ mode: true });
     await gwindowsBot.sleep(2000);
-    await gwindowsBot.clickMouse(hwnd, taskPos[0], taskPos[1], 1, { mode: true });
+    await gwindowsBot.clickMouse(hwnd, taskListPos[0], taskListPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
-    await gwindowsBot.clickMouse(hwnd, jieshouPos[0], jieshouPos[1], { mode: true });
+    await gwindowsBot.clickMouse(hwnd, chioceTaskPos[0], chioceTaskPos[1], 1,{ mode: true });
+    await gwindowsBot.sleep(1000);
+    await gwindowsBot.clickMouse(hwnd, jieshouPos[0], jieshouPos[1], 1, { mode: true });
     await gwindowsBot.sleep(500);
     await gwindowsBot.clickMouse(hwnd, taskBackPos[0], taskBackPos[1], 1, { mode: true });
-    await gwindowsBot.sleep(1000);
+    await gwindowsBot.sleep(2000);
     await gwindowsBot.clickMouse(hwnd, toFloorPos[0], toFloorPos[1], 1, { mode: true });
+    await gwindowsBot.sleep(1000);
+    for (let index = 0; index < 10; index++) {
+        await gwindowsBot.clickMouse(hwnd, toDownFloorPos[0], toDownFloorPos[1], 1, { mode: true });
+        await gwindowsBot.sleep(200);
+    }
+    await gwindowsBot.clickMouse(hwnd, to190Pos[0], to190Pos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
     await gwindowsBot.clickMouse(hwnd, toFloorConfirmPos[0], toFloorConfirmPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
@@ -130,8 +146,8 @@ async function completeTask() {
     console.log("----第四步 完成任务----")
     await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], { mode: true });
     await gwindowsBot.sleep(2000);
-    await gwindowsBot.clickMouse(hwnd, taskPos[0], taskPos[1], 1, { mode: true });
-    await gwindowsBot.sleep(1000);
+    await gwindowsBot.clickMouse(hwnd, taskListPos[0], taskListPos[1], 1, { mode: true });
+    await gwindowsBot.sleep(500);
     await gwindowsBot.clickMouse(hwnd, finishTaskPos[0], finishTaskPos[1], { mode: true });
     await gwindowsBot.sleep(500);
     await gwindowsBot.clickMouse(hwnd, closeNpcPos[0], closeNpcPos[1], { mode: true });
@@ -139,10 +155,23 @@ async function completeTask() {
 }
 
 async function toKillGuai() {
-    console.log("----第三步 接受任务----")
+    console.log("----第三步 执行任务----")
+    // for(let i=1;i<11;i++){
+    //     ks.sendKeys(['right','right','up']);
+    //     await gwindowsBot.sleep(500);
+    // }a
+    // await gwindowsBot.sleep(5000);
+    // for(let i=1;i<11;i++){
+    //     ks.sendKeys(['right','right','up']);
+    //     await gwindowsBot.sleep(500);
+    // }
     //move to guangdian press ↑
     //for press → ↑    break by find 200 level
     //use skill A
+    // robot.keyTap('a')
+    // ks.sendKey('a');
+    // ks.sendKeys(['right','right','up']);
+    console.log("-------")
 }
 async function quitToRoleFun() {
     console.log("----第五步 选择下一个角色----")
@@ -156,59 +185,25 @@ function resolutionHandle(resolution) {
     //分辨率处理
     switch (resolution) {
         case "1920_1080":
-            quitToRole = [617, 453]
-            xuandan = [1564, 813]
-
-            chuansong = [526, 239]
-            npcPos = [954, 652]
-            taskPos = [501, 725]
-            jieshouPos = [260, 418]
-            taskBackPos = [844, 847]
-            toFloorPos = []
-            toFloorConfirmPos = []
-            finishTaskPos = []
-            closeNpcPos = []
-
-
-            daoju = [85, 170]
-            cangku = [1337, 899]
-            xiaohaoTab = [114, 85]
-            firstBag = [41, 114]
-            lingyaoBag = [60, 172]
-
-            lingyaoOptions = { region: [44, 116, 166, 152], sim: 0.5, mode: true };  //范围是任务栏的前三个框
-            bagTabStep = 70
-
-            getFishBagStart = [661, 279]
-            getFishBagEnd = [914, 316]
-
-            bagStart = [94, 311] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
-            bagEnd = [390, 311]
-            bagStep = 40
-            bagGapStep = 12
-
-            firstRole = [291, 354]
-            roleStep = [200, 250]
             break;
          case "2560_1440":
-            jiangtaigongNpc = [442, 741]
-            jiangtaigongNpcClose = [1095, 337]
-            destoryFishBag = [955, 531]
-            destoryFishBagConfirm = [952, 497]
-            zhuangtai1 = [510, 685]
-            zhuangtai2 = [512, 709]
-            fishTong = [939, 606]
-            useFishTong = [957, 690]
-            quitToRole = [1193, 725]
-            xuandan = [1889, 993]
-            daoju = [661, 449]
-            cangku = [1656, 1085]
-            xiaohaoTab = [114, 85]
-            firstBag = [41, 113]
-            lingyaoBag = [60, 172]
+            quitToRole = [617, 453]
+            xuandan = [1879, 988]
 
-            lingyaoOptions = { region: [44, 116, 166, 152], sim: 0.5, mode: true };  //范围是任务栏的前三个框
-            bagTabStep = 70
+            chuansong = [526, 239]
+            myChuansong = [265, 89]
+            confirmChuansong = [435, 541]
+            npcPos = [954, 652]
+            taskListPos = [501, 725]
+            chioceTaskPos = [264, 422]
+            jieshouPos = [844, 847]
+            taskBackPos = [1133, 255]
+            toFloorPos = [507, 747]
+            toDownFloorPos = [1133, 703]
+            to190Pos = [946, 691]
+            toFloorConfirmPos = [962, 744]
+            finishTaskPos = [427, 852]
+            closeNpcPos = [1810, 342]
 
             // getFishBagStart = [845, 369] //右上角
             getFishBagStart = [817, 364] //下居中
@@ -217,6 +212,7 @@ function resolutionHandle(resolution) {
             bagStart = [255, 398] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
             bagEnd = [643, 398]
             bagStep = 40
+            
             bagGapStep = 12
 
             firstRole = [453, 424]
