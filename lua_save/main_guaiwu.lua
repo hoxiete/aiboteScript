@@ -22,20 +22,30 @@ roleStep = {5000, 8000}
 roleArr = {{1, 1, 1, 1, 1, 0}, {0, 1, 1, 1, 1, 1}}
 startRoleIndex = {1, 1} -- 第一排第二个角色
 
-function windowsMain()
+function main_guaiwu()
     local tasklist = {
-        {func = function() return gotoPlace(false) end},
+        {func = function() return gotoPlace_dasha(false) end},
         {func = function() return choiceTask() end},
-        {func = function() return toKillGuai() end},
-        {func = function() return gotoPlace(true) end},
+        {func = function() return toKillGuai_dasha() end},
+        {func = function() return gotoPlace_dasha(true) end},
         {func = function() return completeTask() end},
         {func = function() return quitToRoleFun() end}
     }
-    -- choiceRoleAndExcute(tasklist)
-    choiceRoleAndExcuteTest(tasklist)
+    -- roleExcute(tasklist)
+    frequencyExcute(tasklist, 1)
 end
 
-function choiceRoleAndExcute(funcs)
+function main_longwang()
+    local tasklist = {{func = function() return toKillGuai_longwang() end}}
+    frequencyExcute(tasklist, 1)
+end
+
+function frequencyExcute(funcs, count)
+    for c = 1, count do
+        for i = 1, #(funcs) do if funcs[i]["func"]() then return true end end
+    end
+end
+function roleExcute(funcs)
     for roleIndex1 = startRoleIndex[1], #roleArr do
         for roleIndex2 = startRoleIndex[2], #roleArr[roleIndex1] do
             if roleArr[roleIndex1][roleIndex2] == 1 then
@@ -58,26 +68,44 @@ function choiceRoleAndExcute(funcs)
 end
 
 function iscancel() return IsMouseButtonPressed(4) end
+function iscancel2()
+    if not IsMouseButtonPressed(5) then
+        return true
+    else
+        return false
+    end
+end
+
+function delayMillsecond(millsecond)
+    if originDelayMillsecond(millsecond, function() return iscancel() end) then
+        return true
+    end
+end
+function delayMillsecond2(millsecond)
+    if originDelayMillsecond(millsecond, function() return iscancel2() end) then
+        return true
+    end
+end
 
 -- 可中断延迟器，每秒检测是否按下停止键
-function delayMillsecond(millsecond)
+function originDelayMillsecond(millsecond, cancelFunc)
     if millsecond >= 1000 then
         local count = millsecond // 1000
         local mill = millsecond % 1000
-        for i = 1, count, 1 do
-            Sleep(1000)
-            if iscancel() then
+        for i = 1, count * 2, 1 do
+            Sleep(500)
+            if cancelFunc() then
                 OutputLogMessage("cancel \n")
                 return true
             end
         end
-        if iscancel() then
+        if cancelFunc() then
             OutputLogMessage("cancel \n")
             return true
         end
         Sleep(mill)
     else
-        if iscancel() then
+        if cancelFunc() then
             OutputLogMessage("cancel \n")
             return true
         end
@@ -85,18 +113,8 @@ function delayMillsecond(millsecond)
     end
 end
 
-function choiceRoleAndExcuteTest(funcs)
-    for i = 1, #(funcs) do if funcs[i]["func"]() then return true end end
-end
-
-function click(p)
-    MoveMouseTo(p[1], p[2])
-    Sleep(300)
-    PressAndReleaseMouseButton(1)
-end
-
-function gotoPlace(wait)
-    OutputLogMessage("----第一步 去npc位置----")
+function gotoPlace_dasha(wait)
+    OutputLogMessage("----第一步 去npc位置----\n")
     if openChuansong() then return true end
     click(myChuansong)
     Sleep(500)
@@ -117,7 +135,7 @@ function openChuansong()
 end
 
 function choiceTask()
-    OutputLogMessage("----第二步 接受任务----")
+    OutputLogMessage("----第二步 接受任务----\n")
     click(npcPos)
     if delayMillsecond(2000) then return true end
     click(taskListPos)
@@ -145,7 +163,7 @@ function choiceTask()
 end
 
 function completeTask()
-    OutputLogMessage("----第四步 完成任务----")
+    OutputLogMessage("----第四步 完成任务----\n")
     click(npcPos)
     if delayMillsecond(2000) then return true end
     click(taskListPos)
@@ -155,10 +173,18 @@ function completeTask()
     click(closeNpcPos)
     if delayMillsecond(500) then return true end
 end
+function toKillGuai_longwang()
+    OutputLogMessage("----开始----")
+    PlayMacro("youshang")
+    if delayMillsecond(8000) then return true end
+    PlayMacro("dtoup")
+    if delayMillsecond(10000) then return true end
+    OutputLogMessage("----结束----")
+end
 
-function toKillGuai()
-    OutputLogMessage("----第三步 执行任务----")
-    -- move to guangdian press ↑
+function toKillGuai_dasha()
+    OutputLogMessage("----第三步 执行任务----\n")
+    -- move to guangdian press →↑
     PlayMacro("youshang")
     if delayMillsecond(10000) then return true end
     PlayMacro("youshang")
@@ -170,11 +196,23 @@ function toKillGuai()
     click(skillA)
 end
 function quitToRoleFun()
-    OutputLogMessage("----第五步 选择下一个角色----")
+    OutputLogMessage("----第五步 选择下一个角色----\n")
     click(xuandan)
     if delayMillsecond(1000) then return true end
     click(quitToRole)
     if delayMillsecond(10000) then return true end
+end
+
+function PressAndReleaseMacro(name)
+    PressMacro(name)
+    while (true) do if delayMillsecond2(20000) then break end end
+    ReleaseMacro(name)
+end
+
+function click(p)
+    MoveMouseTo(p[1], p[2])
+    Sleep(300)
+    PressAndReleaseMouseButton(1)
 end
 
 function printPostion()
@@ -183,25 +221,25 @@ function printPostion()
 end
 
 function OnEvent(event, arg)
+    -- 1:左键; 2:右键; 3:中滚轮键; 4:后退键; 5:前进键;
     if (event == "MOUSE_BUTTON_PRESSED" and arg == 5 and
-        IsModifierPressed("rctrl")) then
-        -- 按住右ctrl并点击鼠标前进键
-
+        IsModifierPressed("ralt")) then
+        -- 按住右alt并点击鼠标前进键
+        main_guaiwu()
     elseif (event == "MOUSE_BUTTON_PRESSED" and arg == 2 and
-        IsModifierPressed("lctrl")) then
-        -- 按住右ctrl并点击鼠标右键
+        IsModifierPressed("ralt")) then
+        -- 按住右alt并点击鼠标右键
         printPostion()
-    elseif (event == "MOUSE_BUTTON_PRESSED" and arg == 2 and
-        IsModifierPressed("rctrl")) then
-        -- 按住L键并点击鼠标右键
-
+    elseif (event == "MOUSE_BUTTON_PRESSED" and arg == 3 and
+        IsModifierPressed("ralt")) then
+        -- 按住右alt并点击鼠标中键
+        main_longwang()
     elseif (event == "MOUSE_BUTTON_PRESSED" and arg == 5) then
         -- 点击鼠标前进键
-
+        PressAndReleaseMacro("右键循环")
     elseif (event == "MOUSE_BUTTON_PRESSED" and arg == 3) then
         -- 点击鼠标中键 
-        -- OutputLogMessage("1 \n")
-        windowsMain()
+
     elseif (event == "MOUSE_BUTTON_PRESSED" and arg == 4) then
         -- 点击鼠标后退 
         -- printPostion()

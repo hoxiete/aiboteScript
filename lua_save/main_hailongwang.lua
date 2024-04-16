@@ -1,6 +1,6 @@
 function windowsMain()
     local tasklist = {
-        {func = function() return gotoPlace() end},
+        {func = function() return gotoPlace_longwang() end},
         {func = function() return toKillGuai() end}
     }
     -- choiceRoleAndExcute(tasklist)
@@ -36,7 +36,7 @@ function delayMillsecond(millsecond)
 end
 
 function choiceRoleAndExcuteTest(funcs)
-    for c = 1,10 do
+    for c = 1,1 do
         for i = 1, #(funcs) do if funcs[i]["func"]() then return true end end
     end
 end
@@ -47,7 +47,7 @@ function click(p)
     PressAndReleaseMouseButton(1)
 end
 
-function gotoPlace()
+function gotoPlace_longwang()
     OutputLogMessage("----第一步 去npc位置----")
     -- move to guangdian press ↑
     PlayMacro("youshang")
@@ -59,7 +59,6 @@ function toKillGuai()
     -- move to guangdian press ↑
     PlayMacro("dtoup")
     if delayMillsecond(10000) then return true end
-
 end
 
 
