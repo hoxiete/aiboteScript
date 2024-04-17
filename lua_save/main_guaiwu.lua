@@ -14,6 +14,7 @@ toFloorConfirmPos = {24355, 33838}
 finishTaskPos = {11140, 38574}
 closeNpcPos = {46225, 15849}
 skillA = {18849, 46089}
+skillR = {31269, 46271}
 quitToRole = {15673, 22543}
 
 firstRole = {12000, 20000}
@@ -31,8 +32,9 @@ function main_guaiwu()
         {func = function() return completeTask() end},
         {func = function() return quitToRoleFun() end}
     }
-    -- roleExcute(tasklist)
-    frequencyExcute(tasklist, 1)
+    roleExcute(tasklist)
+    -- frequencyExcute(tasklist, 1)
+    OutputLogMessage("---结束----\n")
 end
 
 function main_longwang()
@@ -191,9 +193,9 @@ function toKillGuai_dasha()
     if delayMillsecond(4000) then return true end
     -- use skill A
     if delayMillsecond(500) then return true end
-    click(skillA)
-    click(skillA)
-    click(skillA)
+    click(skillR)
+    click(skillR)
+    click(skillR)
 end
 function quitToRoleFun()
     OutputLogMessage("----第五步 选择下一个角色----\n")
