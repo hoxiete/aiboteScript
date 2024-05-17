@@ -1,6 +1,4 @@
 const WindowsBot = require('WindowsBot');//引用WindowsBot模块
-// var ks = require('node-key-sender');
-// const robot = require("robotjs")
 
 //注册主函数
 WindowsBot.registerMain(windowsMain, "127.0.0.1", 26678);
@@ -48,24 +46,24 @@ async function windowsMain(windowsBot) {
     console.log("共计 " + roleNum + " 个角色参与收鱼 ")
     resolutionHandle(resolution)
     let startTime
-        count = ++count
-        startTime = new Date()
-        // await choiceRoleAndExcute(
-            await choiceRoleAndExcuteTest(
-            //  () => gotoPlace(true)
-            // ,
-            // () => choiceTask()
-            // ,
-            () => toKillGuai()
-            // ,
-            // () => gotoPlace(false)
-            // ,
-            // () => completeTask()
-            // ,
-            // () => quitToRoleFun()
-        )
-        let spendTime = parseInt(new Date - startTime)
-        // console.log("收鱼结束,耗时 " + spendTime / 1000 + " 秒")
+    count = ++count
+    startTime = new Date()
+    // await choiceRoleAndExcute(
+    await choiceRoleAndExcuteTest(
+        //  () => gotoPlace(true)
+        // ,
+        // () => choiceTask()
+        // ,
+        () => toKillGuai()
+        // ,
+        // () => gotoPlace(false)
+        // ,
+        // () => completeTask()
+        // ,
+        // () => quitToRoleFun()
+    )
+    let spendTime = parseInt(new Date - startTime)
+    // console.log("收鱼结束,耗时 " + spendTime / 1000 + " 秒")
 }
 
 async function choiceRoleAndExcute(...funcs) {
@@ -76,9 +74,12 @@ async function choiceRoleAndExcute(...funcs) {
                 count = ++count
                 console.log("<<===第 " + count + " 个角色===>>")
                 // console.group("<<===第 " + count + " 个角色===>>")
-                await gwindowsBot.clickMouse(hwnd, firstRole[0] + roleStep[0] * roleIndex2, firstRole[1] + roleStep[1] * roleIndex1, 1, { mode: true });
+                let pos = [
+                    firstRole[0] + roleStep[0] * roleIndex2, firstRole[1] + roleStep[1] * roleIndex1
+                ];
+                await gwindowsBot.clickMouse(hwnd, pos[0], pos[1], 1, { mode: true });
                 await gwindowsBot.sleep(800);
-                await gwindowsBot.clickMouse(hwnd, firstRole[0] + roleStep[0] * roleIndex2, firstRole[1] + roleStep[1] * roleIndex1, 1, { mode: true });
+                await gwindowsBot.clickMouse(hwnd, pos[0], pos[1], 1, { mode: true });
                 await gwindowsBot.sleep(10000);
                 for (let index = 0; index < funcs.length; index++) {
                     await funcs[index]();
@@ -99,19 +100,19 @@ async function choiceRoleAndExcuteTest(...funcs) {
 
 async function gotoPlace(wait) {
     console.log("----第一步 去npc位置----")
-        openChuansong()
-        await gwindowsBot.clickMouse(hwnd, myChuansong[0], myChuansong[1], 1, { mode: true });
-        await gwindowsBot.sleep(500);
-        await gwindowsBot.clickMouse(hwnd, confirmChuansong[0], confirmChuansong[1], 1, { mode: true });
-        if(wait){
-            await gwindowsBot.sleep(5000);
-        }
+    openChuansong()
+    await gwindowsBot.clickMouse(hwnd, myChuansong[0], myChuansong[1], 1, { mode: true });
+    await gwindowsBot.sleep(500);
+    await gwindowsBot.clickMouse(hwnd, confirmChuansong[0], confirmChuansong[1], 1, { mode: true });
+    if (wait) {
+        await gwindowsBot.sleep(5000);
+    }
 }
-async function openEsc(){
+async function openEsc() {
     await gwindowsBot.clickMouse(hwnd, xuandan[0], xuandan[1], 1, { mode: true });
     await gwindowsBot.sleep(500);
 }
-async function openChuansong(){
+async function openChuansong() {
     openEsc()
     await gwindowsBot.clickMouse(hwnd, chuansong[0], chuansong[1], 1, { mode: true });
     await gwindowsBot.sleep(500);
@@ -119,11 +120,11 @@ async function openChuansong(){
 
 async function choiceTask() {
     console.log("----第二步 接受任务----")
-    await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], 1,{ mode: true });
+    await gwindowsBot.clickMouse(hwnd, npcPos[0], npcPos[1], 1, { mode: true });
     await gwindowsBot.sleep(2000);
     await gwindowsBot.clickMouse(hwnd, taskListPos[0], taskListPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
-    await gwindowsBot.clickMouse(hwnd, chioceTaskPos[0], chioceTaskPos[1], 1,{ mode: true });
+    await gwindowsBot.clickMouse(hwnd, chioceTaskPos[0], chioceTaskPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
     await gwindowsBot.clickMouse(hwnd, jieshouPos[0], jieshouPos[1], 1, { mode: true });
     await gwindowsBot.sleep(500);
@@ -131,10 +132,9 @@ async function choiceTask() {
     await gwindowsBot.sleep(2000);
     await gwindowsBot.clickMouse(hwnd, toFloorPos[0], toFloorPos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
-    for (let index = 0; index < 10; index++) {
-        await gwindowsBot.clickMouse(hwnd, toDownFloorPos[0], toDownFloorPos[1], 1, { mode: true });
-        await gwindowsBot.sleep(200);
-    }
+    // for (let index = 0; index < 10; index++) {
+    await windowsBot.rollMouse(hwnd, to190Pos[0], to190Pos[1], -10, true);
+    // }
     await gwindowsBot.clickMouse(hwnd, to190Pos[0], to190Pos[1], 1, { mode: true });
     await gwindowsBot.sleep(1000);
     await gwindowsBot.clickMouse(hwnd, toFloorConfirmPos[0], toFloorConfirmPos[1], 1, { mode: true });
@@ -156,23 +156,44 @@ async function completeTask() {
 
 async function toKillGuai() {
     console.log("----第三步 执行任务----")
-    // for(let i=1;i<11;i++){
-    //     ks.sendKeys(['right','right','up']);
-    //     await gwindowsBot.sleep(500);
-    // }a
-    // await gwindowsBot.sleep(5000);
-    // for(let i=1;i<11;i++){
-    //     ks.sendKeys(['right','right','up']);
-    //     await gwindowsBot.sleep(500);
-    // }
+    await gwindowsBot.sendVkByHwnd(hwnd, vk, 2);
+    for (let i = 0; i < 10; i++) {
+        await sendKey(vk);
+        await gwindowsBot.sleep(302);
+    }
+    await gwindowsBot.sendVkByHwnd(hwnd, vk, 3);
+    await gwindowsBot.sleep(5000);
     //move to guangdian press ↑
     //for press → ↑    break by find 200 level
+    //往右走
+    await gwindowsBot.sendVkByHwnd(hwnd, vk, 2);
+    while (await gwindowsBot.findImage(hwnd, "./project_guaiwu/pic/level200.png", option)) {
+        //按上
+        await sendKey(vk);
+    }
+    //停止往右走
+    await gwindowsBot.sendVkByHwnd(hwnd, vk, 3);
     //use skill A
-    // robot.keyTap('a')
-    // ks.sendKey('a');
-    // ks.sendKeys(['right','right','up']);
+    await gwindowsBot.sleep(1000);
+    await sendKey(vk);
     console.log("-------")
 }
+
+function toKillGuai_longwang() {
+    console.log("----开始----");
+    // PlayMacro("youshang");
+    // if (delayMillsecond(8000)) return true;
+    // PlayMacro("dtoup");
+    // if (delayMillsecond(10000)) return true;
+    console.log("----结束----");
+}
+
+async function sendKey(vk) {
+    await gwindowsBot.sendVkByHwnd(hwnd, vk, 2);
+    await gwindowsBot.sleep(102);
+    await gwindowsBot.sendVkByHwnd(hwnd, vk, 3);
+}
+
 async function quitToRoleFun() {
     console.log("----第五步 选择下一个角色----")
     await gwindowsBot.clickMouse(hwnd, xuandan[0], xuandan[1], 1, { mode: true });
@@ -186,7 +207,7 @@ function resolutionHandle(resolution) {
     switch (resolution) {
         case "1920_1080":
             break;
-         case "2560_1440":
+        case "2560_1440":
             quitToRole = [617, 453]
             xuandan = [1879, 988]
 
@@ -212,7 +233,7 @@ function resolutionHandle(resolution) {
             bagStart = [255, 398] //定位于奶牛色鲫鱼的尾巴沟里面的蓝色背景
             bagEnd = [643, 398]
             bagStep = 40
-            
+
             bagGapStep = 12
 
             firstRole = [453, 424]
