@@ -156,26 +156,26 @@ async function completeTask() {
 
 async function toKillGuai() {
     console.log("----第三步 执行任务----")
-    await gwindowsBot.sendVkByHwnd(hwnd, vk, 2);
-    for (let i = 0; i < 10; i++) {
-        await sendKey(vk);
-        await gwindowsBot.sleep(302);
-    }
-    await gwindowsBot.sendVkByHwnd(hwnd, vk, 3);
-    await gwindowsBot.sleep(5000);
+    // await gwindowsBot.sendVkByHwnd(hwnd, 'a', 2);
+    // for (let i = 0; i < 10; i++) {
+        await sendKey('26');
+    //     await gwindowsBot.sleep(302);
+    // }
+    // await gwindowsBot.sendVkByHwnd(hwnd, 'a', 3);
+    // await gwindowsBot.sleep(5000);
     //move to guangdian press ↑
     //for press → ↑    break by find 200 level
     //往右走
-    await gwindowsBot.sendVkByHwnd(hwnd, vk, 2);
-    while (await gwindowsBot.findImage(hwnd, "./project_guaiwu/pic/level200.png", option)) {
-        //按上
-        await sendKey(vk);
-    }
-    //停止往右走
-    await gwindowsBot.sendVkByHwnd(hwnd, vk, 3);
-    //use skill A
-    await gwindowsBot.sleep(1000);
-    await sendKey(vk);
+    // await gwindowsBot.sendVkByHwnd(hwnd, '27', 2);
+    // while (await gwindowsBot.findImage(hwnd, "./project_guaiwu/pic/level200.png", option)) {
+    //     //按上
+    //     await sendKey('26');
+    // }
+    // //停止往右走
+    // await gwindowsBot.sendVkByHwnd(hwnd, '27', 3);
+    // //use skill A
+    // await gwindowsBot.sleep(1000);
+    // await sendKey(vk);
     console.log("-------")
 }
 

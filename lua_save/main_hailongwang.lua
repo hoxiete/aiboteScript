@@ -51,14 +51,14 @@ function gotoPlace_longwang()
     OutputLogMessage("----第一步 去npc位置----")
     -- move to guangdian press ↑
     PlayMacro("youshang")
-    if delayMillsecond(8000) then return true end
+    if delayMillsecond(10000) then return true end
 end
 
 function toKillGuai()
     OutputLogMessage("----第三步 执行任务----")
     -- move to guangdian press ↑
     PlayMacro("dtoup")
-    if delayMillsecond(10000) then return true end
+    if delayMillsecond(14000) then return true end
 end
 
 

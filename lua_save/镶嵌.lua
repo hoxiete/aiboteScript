@@ -119,28 +119,42 @@ function changePet()
 end
 
 function moveAndDo()
-  PressMouseButton(1)
-  MoveMouseTo(28401, 21815)  --装备强化所需材料的槽
-  Sleep(200)
-  ReleaseMouseButton(1)
+  PlayMacro("press I")
+  Sleep(500)
+  dragZhuangbeiToSlot()
   Sleep(100)
-  doxiangqian()
-  MoveMouseTo(23843, 22133) --鼠标移到背包材料附近
-end
+  dragPeiziToSlot()
+  --doxiangqian()
 
+end
 function moveAndOpenxiangqian()
+  MoveMouseTo(20206, 9291)
   PressMouseButton(1)
-  MoveMouseTo(20257, 9427)  --待镶嵌装备的槽
+  MoveMouseTo(20206, 9291)  --装备强化所需材料的槽
+  Sleep(200)
+  ReleaseMouseButton(1)
+end
+function dragZhuangbeiToSlot()
+  click({2202, 23226})
+  MoveMouseTo(1690, 9837)
+  Sleep(200)
+  PressMouseButton(1)
+  MoveMouseTo(20206, 9291)  --装备强化所需材料的槽
+  Sleep(200)
+  ReleaseMouseButton(1)
+end
+function dragPeiziToSlot()
+  MoveMouseTo(2561, 9837)
+  PressMouseButton(1)
+  MoveMouseTo(18285, 14209)  --装备强化所需材料的槽
   Sleep(200)
   ReleaseMouseButton(1)
   Sleep(100)
-  click({19156, 23955})   --点击超级镶嵌
-  MoveMouseTo(26147, 8425) --鼠标移到镶嵌属性附近
 end
 
 function doxiangqian()
-  click({19079, 27553})  --点击 执行按钮
-  MoveMouseTo(5276, 9017) --鼠标移到装备附近
+  click({19054, 27371})  --点击 执行按钮
+  --MoveMouseTo(5276, 9017) --鼠标移到装备附近
 end
 
 function petqianneng()
@@ -163,24 +177,25 @@ function OnEvent(event, arg)
    --按住右ctrl并点击鼠标前进键 开始改造挂机
     guaji()
   elseif(event == "MOUSE_BUTTON_PRESSED" and arg == 2 and IsModifierPressed("lctrl")) then
-   --按住右ctrl并点击鼠标右键 检测鼠标当前位置
+   --按住左ctrl并点击鼠标右键 检测鼠标当前位置
     printPostion()
   elseif(event == "MOUSE_BUTTON_PRESSED" and arg == 2 and IsModifierPressed("rctrl")) then
    --按住L键并点击鼠标右键 切换主宠
     changePet()
   elseif(event == "MOUSE_BUTTON_PRESSED" and arg == 5) then
-   --点击鼠标前进键 开始对第一个喇叭发送悄悄话
+   --点击鼠标前进键 
     --hanhuadd()
-    moveAndOpenxiangqian()
+    OutputLogMessage("5 \n")
+    --moveAndOpenxiangqian()
     --moveAndDo()
     --petqianneng()
   elseif(event == "MOUSE_BUTTON_PRESSED" and arg == 3) then
-   --点击鼠标前进键 开始对第一个喇叭发送悄悄话
-    OutputLogMessage("1 \n")
-  doxiangqian()
+   --点击鼠标中键 
+    OutputLogMessage("3 \n")
+    moveAndDo()
   elseif(event == "MOUSE_BUTTON_PRESSED" and arg == 4) then
-   --点击鼠标前进键 开始对第一个喇叭发送悄悄话
-   OutputLogMessage("2 \n")
+   --点击鼠标后退键 
+   OutputLogMessage("4 \n")
    --doxiangqian()
   else 
   end

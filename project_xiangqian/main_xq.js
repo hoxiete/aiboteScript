@@ -55,18 +55,19 @@ async function windowsMain(windowsBot) {
     hwnd = await windowsBot.findWindow("LATALE_CLIENT", null);
 
     resolutionHandle(resolution)
-    // await windowsBot.initOcr("192.168.1.3")
-    await windowsBot.initOcr("192.168.100.3", { enableGPU: true, enableTensorrt: true });
+    // await windowsBot.initOcr("127.0.0.1")
+    // await windowsBot.initOcr("0.0.0.0")
+    await windowsBot.initOcr("192.168.100.10", { enableGPU: true, enableTensorrt: true });
 
     // huiyin   teshu
     inlayStrategyConfig("teshu")
 
     debugMode = false
 
-    let row = 4
+    let row = 6
 
     // func_1to10(row)
-    //func_NtoM_ByStep(1, 10, 3, 10)
+    func_NtoM_ByStep(1, 10, row, 10)
 
     let n = 10
     let m = 13
@@ -74,7 +75,7 @@ async function windowsMain(windowsBot) {
     // func_10NtoM(n,m,row)
     // func_NtoM_ByStep(10, 13, 3, 1)
     let step = 3
-    func_NtoM_ByStep(10, 13, row, 1)
+    // func_NtoM_ByStep(10, 13, row, 1)
     
 
 
