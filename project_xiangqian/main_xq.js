@@ -27,7 +27,8 @@ let strategys = {
     },
     teshu: {
         caseType: 0, //只判断非空类型
-        origin:{1: { name: "特殊", words: "武器", offset: 0 }}
+        // origin:{1: { name: "特殊", words: "武器", offset: 0 }}
+        origin:{1: { name: "特殊", words: "挕", offset: 0 }}
 
     }
 }
@@ -57,17 +58,17 @@ async function windowsMain(windowsBot) {
     resolutionHandle(resolution)
     // await windowsBot.initOcr("127.0.0.1")
     // await windowsBot.initOcr("0.0.0.0")
-    await windowsBot.initOcr("192.168.100.10", { enableGPU: true, enableTensorrt: true });
+    await windowsBot.initOcr("192.168.100.3", { enableGPU: false, enableTensorrt: true });
 
     // huiyin   teshu
     inlayStrategyConfig("teshu")
-
+    // let dd = await gwindowsBot.getWords(hwnd, { region: [1092, 141, 1118, 157], mode: true })
     debugMode = false
 
-    let row = 6
+    let row = 4
 
     // func_1to10(row)
-    func_NtoM_ByStep(1, 10, row, 10)
+    func_NtoM_ByStep(13, 15, row, 10)
 
     let n = 10
     let m = 13
@@ -280,17 +281,15 @@ function resolutionHandle(resolution) {
         case "1920_1080":
 
         case "2560_1440":
-            xiangqiancao = [790, 202]
-            firstBag = [47, 117]
-            superXiangqian = [747, 523]
-            execute = [747, 602]
-            bagStart = [255, 398] 
-            bagEnd = [643, 398]
+            xiangqiancao = [804, 199]
+            firstBag = [77, 179]
+            superXiangqian = [761, 523]
+            execute = [756, 602]
             bagStep = 40
             bagGapStep = 12
-            oldAttributeRegion = { region: [626, 371, 798, 473] }
-            newAttributeRegion = { region: [1074, 314, 1227, 434] }
-            waitAttributeRegion = { region: [1075, 141, 1259, 258] }
+            oldAttributeRegion = { region: [667, 376, 797, 453] }
+            newAttributeRegion = { region: [1092, 314, 1237, 434] }
+            waitAttributeRegion = { region: [1095, 141, 1269, 258] }
             break;
         default:
 
